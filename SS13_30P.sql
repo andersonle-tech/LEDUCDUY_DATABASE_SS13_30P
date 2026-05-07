@@ -1,6 +1,5 @@
-	CREATE DATABASE StudentDB;
+CREATE DATABASE IF NOT EXISTS StudentDB;
 USE StudentDB;
-
 -- 1. Bảng Khoa
 CREATE TABLE Department (
     DeptID VARCHAR(5) PRIMARY KEY,
@@ -34,7 +33,7 @@ CREATE TABLE Enrollment (
     FOREIGN KEY (CourseID) REFERENCES Course(CourseID)
 );
 
--- Chèn dữ liệu mẫu
+-- Chèn dữ liệu mẫu Bảng Khoa & Sinh Viên
 INSERT INTO Department VALUES
 ('IT','Information Technology'),
 ('BA','Business Administration'),
@@ -49,16 +48,32 @@ INSERT INTO Student VALUES
 ('S00006','Do Hung','Male','2002-11-11','BA'),
 ('S00007','Nguyen Mai','Female','2003-07-07','ACC'),
 ('S00008','Tran Phuc','Male','2003-09-09','IT');
-#1
+
+-- Chèn dữ liệu mẫu Bảng Môn Học (BỔ SUNG)
+INSERT INTO Course VALUES
+('C00001', 'Database Systems', 3),
+('C00002', 'Programming C++', 4);
+
+-- Chèn dữ liệu mẫu Bảng Đăng Ký (BỔ SUNG)
+INSERT INTO Enrollment VALUES
+('S00001', 'C00001', 7.5),
+('S00002', 'C00001', 9.0),
+('S00005', 'C00001', 8.5),
+('S00008', 'C00001', 6.0),
+('S00001', 'C00002', 8.0);
+
+-- #1
 CREATE VIEW ViewStudentBasic AS
 SELECT s.StudentID, s.FullName, d.DeptName
 FROM Student s
 JOIN Department d ON s.DeptID = d.DeptID;
 
 SELECT * FROM ViewStudentBasic;
-#2
+
+-- #2
 CREATE INDEX idxFullName ON Student(FullName);
-#3
+
+-- #3
 DELIMITER //
 CREATE PROCEDURE GetStudentsIT()
 BEGIN
@@ -70,7 +85,8 @@ END //
 DELIMITER ;
 
 CALL GetStudentsIT();
-#4
+
+-- #4
 CREATE VIEW ViewStudentCountByDept AS
 SELECT d.DeptName, COUNT(s.StudentID) AS TotalStudents
 FROM Department d
@@ -80,7 +96,8 @@ GROUP BY d.DeptID, d.DeptName;
 SELECT DeptName, TotalStudents
 FROM ViewStudentCountByDept
 WHERE TotalStudents = (SELECT MAX(TotalStudents) FROM ViewStudentCountByDept);
-#5
+
+-- #5
 DELIMITER //
 CREATE PROCEDURE GetTopScoreStudent(IN varCourseID VARCHAR(6))
 BEGIN
@@ -94,7 +111,8 @@ END //
 DELIMITER ;
 
 CALL GetTopScoreStudent('C00001');
-#6
+
+-- #6
 CREATE VIEW ViewITEnrollmentDB AS
     SELECT 
         e.StudentID, e.CourseID, e.Score
@@ -107,13 +125,15 @@ CREATE VIEW ViewITEnrollmentDB AS
     WHERE
         e.CourseID = 'C00001'
             AND d.DeptName = 'Information Technology' WITH CHECK OPTION;
-#7
+
+-- #7
 DELIMITER //
 CREATE PROCEDURE UpdateScoreITDB(
     IN varStudentID VARCHAR(6),
     INOUT inoutNewScore DECIMAL(4,2)
 )
 BEGIN
+    -- Nếu điểm > 10 thì set về max là 10
     IF inoutNewScore > 10 THEN
         SET inoutNewScore = 10.00;
     END IF;
@@ -127,5 +147,5 @@ DELIMITER ;
 SET @new_score = 12.50;
 CALL UpdateScoreITDB('S00001', @new_score);
 
-SELECT @new_score;
+SELECT @new_score AS FinalScoreAssigned;
 SELECT * FROM ViewITEnrollmentDB WHERE StudentID = 'S00001';
