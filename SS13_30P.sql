@@ -1,4 +1,4 @@
-CREATE DATABASE StudentDB;
+	CREATE DATABASE StudentDB;
 USE StudentDB;
 
 -- 1. Bảng Khoa
@@ -80,7 +80,7 @@ GROUP BY d.DeptID, d.DeptName;
 SELECT DeptName, TotalStudents
 FROM ViewStudentCountByDept
 WHERE TotalStudents = (SELECT MAX(TotalStudents) FROM ViewStudentCountByDept);
-#5a
+#5
 DELIMITER //
 CREATE PROCEDURE GetTopScoreStudent(IN varCourseID VARCHAR(6))
 BEGIN
@@ -92,17 +92,22 @@ BEGIN
     LIMIT 1;
 END //
 DELIMITER ;
-#5b
+
 CALL GetTopScoreStudent('C00001');
-#6a
+#6
 CREATE VIEW ViewITEnrollmentDB AS
-SELECT e.StudentID, e.CourseID, e.Score
-FROM Enrollment e
-JOIN Student s ON e.StudentID = s.StudentID
-JOIN Department d ON s.DeptID = d.DeptID
-WHERE e.CourseID = 'C00001' AND d.DeptName = 'Information Technology'
-WITH CHECK OPTION;
-#6b
+    SELECT 
+        e.StudentID, e.CourseID, e.Score
+    FROM
+        Enrollment e
+            JOIN
+        Student s ON e.StudentID = s.StudentID
+            JOIN
+        Department d ON s.DeptID = d.DeptID
+    WHERE
+        e.CourseID = 'C00001'
+            AND d.DeptName = 'Information Technology' WITH CHECK OPTION;
+#7
 DELIMITER //
 CREATE PROCEDURE UpdateScoreITDB(
     IN varStudentID VARCHAR(6),
@@ -118,7 +123,7 @@ BEGIN
     WHERE StudentID = varStudentID;
 END //
 DELIMITER ;
-#6c
+
 SET @new_score = 12.50;
 CALL UpdateScoreITDB('S00001', @new_score);
 
