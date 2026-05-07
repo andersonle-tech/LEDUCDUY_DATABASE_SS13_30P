@@ -101,6 +101,7 @@ FROM Enrollment e
 JOIN Student s ON e.StudentID = s.StudentID
 JOIN Department d ON s.DeptID = d.DeptID
 WHERE e.CourseID = 'C00001' AND d.DeptName = 'Information Technology'
+WITH CHECK OPTION;
 #6b
 DELIMITER //
 CREATE PROCEDURE UpdateScoreITDB(
